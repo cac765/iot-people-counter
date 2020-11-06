@@ -29,26 +29,27 @@ class PeopleCounterClass:
         # initialize method
 
         # iterate through camera class array
-        for camera in _cameraArray:
+        for camera in self._cameraArray:
 
             # check if building key does not exist
-            if camera.buildingID not in _occupantDict:
+            if camera.buildingID not in self._occupantDict:
                 
                 # create building key
-                _occupantDict[ camera.buildingID ] = {}
+                self._occupantDict[ camera.buildingID ] = {}
 
             # check if room key does not exist
-            if camera.roomID not in _occupantDict[ camera.buildingID ]:
+            if camera.roomID not in self._occupantDict[ camera.buildingID ]:
 
                 # create room key
-                _occupantDict[ camera.buildingID ][ camera.roomID ] = []
+                self._occupantDict[ camera.buildingID ][ camera.roomID ] = []
 
             # populate room with occupants from camera
-            _occupantDict[ camera.buildingID ][
-                           camera.roomID ] = _populate_room( camera )
-
+            self._occupantDict[ camera.buildingID ][
+                                camera.roomID ] += self._populate_room( camera )
+        print( "=====DEBUG" )
+        self.print_occupant_dict()
         # resolve double counted occupants
-        _resolve_double_counting()
+        self._resolve_double_counting()
         
 
     """
@@ -87,11 +88,11 @@ class PeopleCounterClass:
     """
     def _resolve_double_counting( self ):
         # iterate through buildings
-        for building in occupantDict:
+        for building in self._occupantDict:
             # iterate through rooms
-            for room in occupantDict[ building ]:
-                occupantDict[ building ][ room ] =_resolve_room(
-                                              occupantDict[ building ][ room ] )
+            for room in self._occupantDict[ building ]:
+                self._occupantDict[ building ][ room ] = self._resolve_room(
+                                    self._occupantDict[ building ][ room ] )
                 
 
     """
@@ -106,13 +107,35 @@ class PeopleCounterClass:
     def _resolve_room( self, occupantArray: list ) -> list:
         tempArray = []
         for occupant in occupantArray:
+            print("=== occupant: {}".format(occupant.uuid))
             if ( occupant.overlapFlag ):
-                if ( occupant not in tempArray ):
-                    tempArray.append( occupant )
+                print( "\t===Found overlap uuid: {}".format( occupant.uuid ) )
+                if ( occupant.uuid not in tempArray ):
+                    print("\t\t===Appending to temp array: {}".format(occupant.uuid))
+                    tempArray.append( occupant.uuid )
                 else:
-                    tempArray.remove( occupant )
+                    print("\t\t===Duplicate found: {}".format(occupant.uuid))
+                    tempArray.remove( occupant.uuid )
                     occupantArray.remove( occupant )
         return occupantArray
+
+    """
+      Public
+      Display method for the occupant dictionary data
+    """
+    def print_occupant_dict( self ):
+        for building in self._occupantDict:
+            for room in self._occupantDict[ building ]:
+                for occupant in self._occupantDict[ building ][ room ]:
+                    print( occupant.to_string() )
+
+    """
+      Public
+      Display method for the camera array data
+    """
+    def print_camera_array( self ):
+        for camera in self._cameraArray:
+            print( camera.to_string() )
 
 
 print( "People Counter Class Imported" )

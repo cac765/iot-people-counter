@@ -49,5 +49,16 @@ class CameraClass:
         for occupant in self.occupantArray:
             occupant.to_string()
 
+    def to_string( self ):
+        string  = "Device ID: {} \n".format( self.devID ) 
+        string += "\tBuilding ID: {} \n".format( self.buildingID ) 
+        string += "\tRoom ID: {} \n".format( self.roomID ) 
+        string += "\tOverlap: {} \n".format( self.overlap )
+        string += "\tOccupants: \n{\n"
+        for occupant in self.occupantArray:
+            string += occupant.to_string()
+        string += "}\n"
+        return string
+
 
 print( "Camera Class Imported" )

@@ -30,10 +30,11 @@ class OccupantClass:
 
     # DISPLAY
     def to_string(self):
-        print("UUID: {}".format(occupant.uuid))
-        print("\tLocation: {}".format(occupant.location))
-        print("\toverlapFlag: {}".format(occupant.location))
-        print("\tcountedFlag: {}".format(occupant.location))
+        string  = "UUID: {}\n".format(self.uuid)
+        string += "\tLocation: {}\n".format(self.location)
+        string += "\toverlapFlag: {}\n".format(self.overlapFlag)
+        string += "\tcountedFlag: {}\n".format(self.counterFlag)
+        return string
 
     # MISC
     def is_in_overlap(self):
