@@ -1,3 +1,0 @@
-from CameraClass import CameraClass
-from OccupantClass import OccupantClass
-from PeopleCounterClass import PeopleCounterClass
