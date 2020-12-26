@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ColorAnalysisVideo", "ColorAnalysisVideo.pyproj", "{56DCC2E0-C6F3-4BA6-97F9-F481EB25FD0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56DCC2E0-C6F3-4BA6-97F9-F481EB25FD0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56DCC2E0-C6F3-4BA6-97F9-F481EB25FD0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E457CE01-0191-4750-9993-B62B125B42F5}
+	EndGlobalSection
+EndGlobal
