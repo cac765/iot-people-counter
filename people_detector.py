@@ -85,6 +85,8 @@ parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker.',
                     required=True) ###ADDED BY COREY CLINE
 parser.add_argument('--client_name', help='Name of the MQTT Client Session.',
                     default='TX1') ###ADDED BY COREY CLINE
+parser.add_argument('--topic', help='MQTT topic to publish data to.',
+                    default='test/occupancy')
 
 args = parser.parse_args()
 
@@ -97,6 +99,7 @@ imW, imH = int(resW), int(resH)
 use_TPU = args.edgetpu
 broker_ip = args.broker_ip ###ADDED BY COREY CLINE
 client_name = args.client_name ###ADDED BY COREY CLINE
+mqtt_topic = args.topic ###ADDED BY COREY CLINE
 
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
@@ -258,7 +261,7 @@ while True:
         mode = tracker.get_mode()
         tracker.clear_data()
         TX1_client.client.loop_start()
-        TX1_client.publish( "test/occupancy", mode, qos = 2, retain = False )
+        TX1_client.publish( mqtt_topic, mode, qos = 2, retain = False )
         TX1_client.client.loop_stop()
         print( "PEOPLE: {}".format( mode ) )
         pub_timer = time.perf_counter()
