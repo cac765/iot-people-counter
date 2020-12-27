@@ -1,4 +1,4 @@
-import paho.mqtt as mqtt
+import paho.mqtt.client as mqtt
 import logging, time
 
 
@@ -31,7 +31,7 @@ def on_message( client, userdata, message ):
     """
     msg = str( message.payload )
     logging.info( "\tTopic: {}\n\tMessage: {}\n\tRetained: {}".format(
-                  message.topic,msg, message.retain )
+                  message.topic,msg, message.retain ) )
 
     if ( message.retain == 1 ):
         logging.info( "This was a retained message." )
@@ -76,8 +76,8 @@ class MQTTClient:
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.client.on_message = on_message
-        self.cleint.publish = on_publish
-        self.client.subscribe = on_subscribe
+        self.client.on_publish = on_publish
+        self.client.on_subscribe = on_subscribe
         self.client.on_log = on_log
 
 

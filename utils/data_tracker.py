@@ -6,7 +6,10 @@ class DataTracker:
         self.mode = None
 
     def add_point( self, point: int ):
-        self.data_points.append( point )        
+        self.data_points.append( point )
+
+    def clear_data( self ):
+        self.__init__()
 
     def get_mode( self ) -> int:
         self._update_mode()
@@ -19,7 +22,7 @@ class DataTracker:
         mode_list: list = []
         occurrence_list: list = []
         occurrence_dict: dict = {}
-        
+
         self.data_points.sort()
 
         while ( index < len( self.data_points ) ):
@@ -41,5 +44,3 @@ class DataTracker:
         self.mode = mode
 
 
-    
-    
