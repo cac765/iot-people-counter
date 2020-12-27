@@ -81,6 +81,10 @@ parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If t
                     default='1280x720')
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
+parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker.',
+                    required=True) ###ADDED BY COREY CLINE
+parser.add_argument('--client_name', help='Name of the MQTT Client Session.',
+                    default='TX1') ###ADDED BY COREY CLINE
 
 args = parser.parse_args()
 
@@ -91,6 +95,8 @@ min_conf_threshold = float(args.threshold)
 resW, resH = args.resolution.split('x')
 imW, imH = int(resW), int(resH)
 use_TPU = args.edgetpu
+broker_ip = args.broker_ip ###ADDED BY COREY CLINE
+client_name = args.client_name ###ADDED BY COREY CLINE
 
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
@@ -165,8 +171,8 @@ pub_timer = time.perf_counter() ### INITIALIZE PUBLISH TIMER - ADDED BY COREY CL
 
 # Initialize data tracker and MQTT Client - ADDED BY COREY CLINE
 tracker = DataTracker()
-broker_ip = "192.168.0.34"
-client_name = "TX1"
+#broker_ip = "192.168.0.34"
+#client_name = "TX1"
 TX1_client = MQTTClient( broker_ip, client_name )
 TX1_client.connect()
 
