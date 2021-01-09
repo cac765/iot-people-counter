@@ -2,9 +2,9 @@
 
 *Resource*
 
-* [TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi/Raspberry_Pi_Guide.md at master · EdjeElectronics/TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi · GitHub](https://github.com/EdjeElectronics/TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi/blob/master/Raspberry_Pi_Guide.md) --> The following tutorial is based on EdjeElectronics' guide here.
+* [TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi/Raspberry_Pi_Guide.md at master · EdjeElectronics/TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi · GitHub](https://github.com/EdjeElectronics/TensorFlow-Lite-Object-Detection-on-Android-and-Raspberry-Pi/blob/master/Raspberry_Pi_Guide.md) → The following tutorial is based on EdjeElectronics' guide here.
 
-* [Python quickstart: TensorFlow Lite](https://www.tensorflow.org/lite/guide/python) --> TensorFlow Lite documentation.
+* [Python quickstart: TensorFlow Lite](https://www.tensorflow.org/lite/guide/python) → TensorFlow Lite documentation.
 
 
 
@@ -26,7 +26,7 @@ Once the upgrade is complete, we can make sure the camera port is enabled. Run t
 sudo raspi-config
 ```
 
-Once in the menu, navigate to `interface options` --> `camera`. Select `yes` to enable the camera interface. The Pi will ask to reboot.
+Once in the menu, navigate to `interface options` → `camera`. Select `yes` to enable the camera interface. The Pi will ask to reboot.
 
 
 
@@ -93,11 +93,11 @@ mkvirtualenv tflite1 -p /usr/bin/python3
 
 
 
-##### Activating/Deactivating Virtual Environments
+### Activating/Deactivating Virtual Environments
 
-To activate your virtual environment -> `workon tflite1`
+To activate your virtual environment → `workon tflite1`
 
-To deactivate -> `deactivate`
+To deactivate → `deactivate`
 
 
 
@@ -113,7 +113,7 @@ bash get_pi_requirements.sh
 
 
 
-##### A Note on the Dependencies
+### A Note on the Dependencies
 
 In order to run a TensorFlow-Lite model on the Raspberry Pi, we do not need the full TensorFlow library. The full library is bulky and designed for loading models, training models, saving models, etc. For our case, we simply need the modules from TensorFlow that are able to **interpret** our pre-trained model. Therefore, we will only need to install the **TensorFlow-Lite Interpreter**.
 
@@ -208,7 +208,7 @@ The output of one ALU can be directly passed to the input of the next ALU withou
 
 
 
-##### Install libedgetpu library
+### Install libedgetpu library
 
 First, we’ll download and install the Edge TPU runtime, which is the library needed to interface with the USB Accelerator. These instructions follow the [USB Accelerator setup guide from the official Coral website](https://coral.ai/docs/accelerator/get-started/ "https://coral.ai/docs/accelerator/get-started/").
 
@@ -237,7 +237,7 @@ Now that the libedgetpu runtime is installed, it’s time to set up an Edge TPU 
 
 
 
-##### Set up Edge TPU detection model
+### Set up Edge TPU detection model
 
 Edge TPU models are TensorFlow Lite models that have been compiled specifically to run on Edge TPU devices like the Coral USB Accelerator. They reside in a .tflite file and are used the same way as a regular TFLite mode. We will keep the Edge TPU file in the same model folder as the TFLite model it was compiled from, and name it “edgetpu.tflite”.
 
@@ -256,7 +256,7 @@ Now the sample Edge TPU model is all ready to go. It will use the same labelmap.
 
 
 
-##### Run detection with Edge TPU
+### Run detection with Edge TPU
 
 Now that everything is set up, it’s time to test out the Coral USB Accelerator! Make sure you free up memory and processing power by closing any programs you aren’t using. Make sure you have a webcam plugged in. Plug your Coral USB Accelerator into one of the USB ports of the Raspberry Pi.
 
