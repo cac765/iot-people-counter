@@ -79,6 +79,10 @@ parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If t
                     default='1280x720')
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
+parser.add_argument('--record', help='Use a VideoWriter to record and save the output',
+                    action='store_true') ### ADD RECORD ARGUMENT - JACOB HAGAN
+parser.add_argument('--showdisplay', help='Displays output with cv2',
+                    action='store_true') ### ADD DISPLAY ARGUMENT - JACOB HAGAN
 
 args = parser.parse_args()
 
@@ -89,6 +93,8 @@ min_conf_threshold = float(args.threshold)
 resW, resH = args.resolution.split('x')
 imW, imH = int(resW), int(resH)
 use_TPU = args.edgetpu
+use_VideoWriter = args.record ### INITIALIZE VIDEOWRITER FLAG - JACOB HAGAN
+showdisplay = args.showdisplay ### INITIALIZE DISPLAY FLAG - JACOB HAGAN
 
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
@@ -157,7 +163,10 @@ freq = cv2.getTickFrequency()
 # Initialize video stream
 videostream = VideoStream(resolution=(imW,imH),framerate=30).start()
 time.sleep(1)
-writer = cv2.VideoWriter( "output/output.avi", cv2.VideoWriter_fourcc( *"MJPG" ), 4, (imW,imH) ) ### ADDED HERE TO SAVE VIDEO AS FILE - COREY CLINE   
+
+# If the user wants to record the output, initialize the VideoWriter object - JACOB HAGAN
+if use_VideoWriter:
+    writer = cv2.VideoWriter( "output/output.avi", cv2.VideoWriter_fourcc( *"MJPG" ), 4, (imW,imH) ) ### ADDED HERE TO SAVE VIDEO AS FILE - COREY CLINE
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
 while True:
@@ -189,6 +198,9 @@ while True:
     scores = interpreter.get_tensor(output_details[2]['index'])[0] # Confidence of detected objects
     #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
 
+    # Track number of occupants - ADDED BY COREY CLINE
+    num_occupants = 0
+
     # Loop over all detections and draw detection box if confidence is above minimum threshold
     for i in range(len(scores)):
         if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
@@ -210,12 +222,21 @@ while True:
             cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
 
-    # Draw framerate in corner of frame
+            # Count for People - ADDED BY COREY CLINE
+            if ( object_name == "person" ):
+                num_occupants += 1
+
+    # Draw framerate in corner of frame (Draw occupant number in corner of frame ADDED BY COREY CLINE)
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
+    cv2.putText(frame, 'PEOPLE: {}'.format(num_occupants),(30,90),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
+    if not showdisplay: ### IF DISPLAY FLAG IS NOT TRUE, PRINT DETECTION OUTPUT TO CONSOLE - JACOB HAGAN
+        print( "FPS: {0:.2f}".format(frame_rate_calc) + "\tPEOPLE: {}".format(num_occupants)) ### PRINT RESULTS TO CONSOLE - ADDED BY COREY CLINE
 
     # All the results have been drawn on the frame, so it's time to display it.
-    writer.write( frame ) ### ADDED HERE TO WRITE THE CURRENT FRAME TO THE VIDEO FILE - COREY CLINE
-    cv2.imshow('Object detector', frame)
+    if use_VideoWriter:
+        writer.write( frame ) ### ADDED HERE TO WRITE THE CURRENT FRAME TO THE VIDEO FILE - COREY CLINE
+    if showdisplay:
+        cv2.imshow('Object detector', frame)
 
     # Calculate framerate
     t2 = cv2.getTickCount()
@@ -229,4 +250,5 @@ while True:
 # Clean up
 cv2.destroyAllWindows()
 videostream.stop()
-writer.release() ### ADDED HERE TO RELEASE THE VIDEO WRITER AND SAVE THE FILE - COREY CLINE
+if use_VideoWriter:
+    writer.release() ### ADDED HERE TO RELEASE THE VIDEO WRITER AND SAVE THE FILE - COREY CLINE
