@@ -81,6 +81,8 @@ parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed u
                     action='store_true')
 parser.add_argument('--record', help='Use a VideoWriter to record and save the output',
                     action='store_true') ### ADD RECORD ARGUMENT - JACOB HAGAN
+parser.add_argument('--showdisplay', help='Displays output with cv2',
+                    action='store_true') ### ADD DISPLAY ARGUMENT - JACOB HAGAN
 
 args = parser.parse_args()
 
@@ -92,6 +94,7 @@ resW, resH = args.resolution.split('x')
 imW, imH = int(resW), int(resH)
 use_TPU = args.edgetpu
 use_VideoWriter = args.record ### INITIALIZE VIDEOWRITER FLAG - JACOB HAGAN
+showdisplay = args.showdisplay ### INITIALIZE DISPLAY FLAG - JACOB HAGAN
 
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
@@ -226,12 +229,14 @@ while True:
     # Draw framerate in corner of frame (Draw occupant number in corner of frame ADDED BY COREY CLINE)
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
     cv2.putText(frame, 'PEOPLE: {}'.format(num_occupants),(30,90),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
-#    print( "FPS: {0:.2f}".format(frame_rate_calc) + "\tPEOPLE: {}".format(num_occupants)) ### PRINT RESULTS TO CONSOLE - ADDED BY COREY CLINE
+    if not showdisplay: ### IF DISPLAY FLAG IS NOT TRUE, PRINT DETECTION OUTPUT TO CONSOLE - JACOB HAGAN
+        print( "FPS: {0:.2f}".format(frame_rate_calc) + "\tPEOPLE: {}".format(num_occupants)) ### PRINT RESULTS TO CONSOLE - ADDED BY COREY CLINE
 
     # All the results have been drawn on the frame, so it's time to display it.
     if use_VideoWriter:
         writer.write( frame ) ### ADDED HERE TO WRITE THE CURRENT FRAME TO THE VIDEO FILE - COREY CLINE
-    cv2.imshow('Object detector', frame)
+    if showdisplay:
+        cv2.imshow('Object detector', frame)
 
     # Calculate framerate
     t2 = cv2.getTickCount()
