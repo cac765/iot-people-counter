@@ -108,17 +108,17 @@ showdisplay = args.showdisplay ### INITIALIZE DISPLAY FLAG - JACOB HAGAN
 broker_ip = args.broker_ip ###ADDED BY COREY CLINE
 client_name = args.client_name ###ADDED BY COREY CLINE
 mqtt_topic = args.topic ###ADDED BY COREY CLINE
-publish_interval = args.publish_interval ###ADDED BY COREY CLINE
+publish_interval = int(args.publish_interval) ###ADDED BY COREY CLINE
 
 # Validate MQTT input arguments here - COREY CLINE
 if broker_ip == None:
-    if mqtt_topic != None:
+    if mqtt_topic != "test/occupancy":
         raise Exception( "Must specify a broker_ip to publish to a topic. " + \
                          "Use --broker-ip argument to connect to a broker." )
-    if client_name != None:
+    if client_name != "TX1":
         raise Exception( "Must specify a broker_ip for a client_name. "+ \
                          "Use --broker-ip argument to connect to a broker." )
-    if publish_interval != None:
+    if publish_interval != 10:
         raise Exception( "Must specify a broker_ip to publish at a given " + \
                          "interval. Use --broker-ip argument to connect " + \
                          "to a broker." )
