@@ -81,11 +81,15 @@ parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If t
                     default='1280x720')
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
-parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker.',
+parser.add_argument('--record', help='Use a VideoWriter to record and save the output',
+                    action='store_true') ### ADD RECORD ARGUMENT - JACOB HAGAN
+parser.add_argument('--showdisplay', help='Displays output with cv2',
+                    action='store_true') ### ADD DISPLAY ARGUMENT - JACOB HAGAN
+parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker. If no IP is specified, MQTT will not be used.',
                     required=True) ###ADDED BY COREY CLINE
-parser.add_argument('--client_name', help='Name of the MQTT Client Session.',
+parser.add_argument('--client_name', help='Name of the MQTT Client Session. Default session is TX1.',
                     default='TX1') ###ADDED BY COREY CLINE
-parser.add_argument('--topic', help='MQTT topic to publish data to.',
+parser.add_argument('--topic', help='MQTT topic to publish data to. Default topic is test/occupancy.',
                     default='test/occupancy')
 
 args = parser.parse_args()
@@ -97,6 +101,8 @@ min_conf_threshold = float(args.threshold)
 resW, resH = args.resolution.split('x')
 imW, imH = int(resW), int(resH)
 use_TPU = args.edgetpu
+use_VideoWriter = args.record ### INITIALIZE VIDEOWRITER FLAG - JACOB HAGAN
+showdisplay = args.showdisplay ### INITIALIZE DISPLAY FLAG - JACOB HAGAN
 broker_ip = args.broker_ip ###ADDED BY COREY CLINE
 client_name = args.client_name ###ADDED BY COREY CLINE
 mqtt_topic = args.topic ###ADDED BY COREY CLINE
@@ -168,7 +174,10 @@ freq = cv2.getTickFrequency()
 # Initialize video stream
 videostream = VideoStream(resolution=(imW,imH),framerate=30).start()
 time.sleep(1)
-#writer = cv2.VideoWriter( "output/output.avi", cv2.VideoWriter_fourcc( *"MJPG" ), 4, (imW,imH) ) ### ADDED HERE TO SAVE VIDEO AS FILE - COREY CLINE
+
+# If the user wants to record the output, initialize the VideoWriter object - JACOB HAGAN
+if use_VideoWriter:
+    writer = cv2.VideoWriter( "output/output.avi", cv2.VideoWriter_fourcc( *"MJPG" ), 4, (imW,imH) ) ### ADDED HERE TO SAVE VIDEO AS FILE - COREY CLINE
 
 pub_timer = time.perf_counter() ### INITIALIZE PUBLISH TIMER - ADDED BY COREY CLINE
 
@@ -241,11 +250,15 @@ while True:
     # Draw framerate in corner of frame (Draw occupant number in corner of frame ADDED BY COREY CLINE)
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
     cv2.putText(frame, 'PEOPLE: {}'.format(num_occupants),(30,90),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
-#    print( "FPS: {0:.2f}".format(frame_rate_calc) + "\tPEOPLE: {}".format(num_occupants)) ### PRINT RESULTS TO CONSOLE - ADDED BY COREY CLINE
+    if not showdisplay: ### IF DISPLAY FLAG IS NOT TRUE, PRINT DETECTION OUTPUT TO CONSOLE - JACOB HAGAN
+        print( "FPS: {0:.2f}".format(frame_rate_calc) + "\tPEOPLE: {}".format(num_occupants)) ### PRINT RESULTS TO CONSOLE - ADDED BY COREY CLINE
+
 
     # All the results have been drawn on the frame, so it's time to display it.
-#    writer.write( frame ) ### ADDED HERE TO WRITE THE CURRENT FRAME TO THE VIDEO FILE - COREY CLINE
-    cv2.imshow('Object detector', frame)
+    if use_VideoWriter:
+        writer.write( frame ) ### ADDED HERE TO WRITE THE CURRENT FRAME TO THE VIDEO FILE - COREY CLINE
+    if showdisplay:
+        cv2.imshow('Object detector', frame)
 
     # Calculate framerate
     t2 = cv2.getTickCount()
@@ -273,4 +286,5 @@ while True:
 # Clean up
 cv2.destroyAllWindows()
 videostream.stop()
-#writer.release() ### ADDED HERE TO RELEASE THE VIDEO WRITER AND SAVE THE FILE - COREY CLINE
+if use_VideoWriter:
+    writer.release() ### ADDED HERE TO RELEASE THE VIDEO WRITER AND SAVE THE FILE - COREY CLINE
