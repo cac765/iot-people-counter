@@ -85,11 +85,11 @@ parser.add_argument('--record', help='Use a VideoWriter to record and save the o
                     action='store_true') ### ADD RECORD ARGUMENT - JACOB HAGAN
 parser.add_argument('--showdisplay', help='Displays output with cv2',
                     action='store_true') ### ADD DISPLAY ARGUMENT - JACOB HAGAN
-parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker.',
+parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker. If no IP is specified, MQTT will not be used.',
                     required=True) ###ADDED BY COREY CLINE
-parser.add_argument('--client_name', help='Name of the MQTT Client Session.',
+parser.add_argument('--client_name', help='Name of the MQTT Client Session. Default session is TX1.',
                     default='TX1') ###ADDED BY COREY CLINE
-parser.add_argument('--topic', help='MQTT topic to publish data to.',
+parser.add_argument('--topic', help='MQTT topic to publish data to. Default topic is test/occupancy.',
                     default='test/occupancy')
 
 args = parser.parse_args()
