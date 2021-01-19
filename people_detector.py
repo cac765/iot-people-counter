@@ -86,11 +86,13 @@ parser.add_argument('--record', help='Use a VideoWriter to record and save the o
 parser.add_argument('--showdisplay', help='Displays output with cv2',
                     action='store_true') ### ADD DISPLAY ARGUMENT - JACOB HAGAN
 parser.add_argument('--broker-ip', help='IP Address of the MQTT Broker. If no IP is specified, MQTT will not be used.',
-                    required=True) ###ADDED BY COREY CLINE
+                    default=None) ###ADDED BY COREY CLINE
 parser.add_argument('--client_name', help='Name of the MQTT Client Session. Default session is TX1.',
                     default='TX1') ###ADDED BY COREY CLINE
 parser.add_argument('--topic', help='MQTT topic to publish data to. Default topic is test/occupancy.',
                     default='test/occupancy')
+parser.add_argument('--publish-interval', help='Interval in seconds to publish to MQTT topic. Default interval is 10s.',
+                    default=10) ###ADDED BY COREY CLINE
 
 args = parser.parse_args()
 
@@ -106,6 +108,20 @@ showdisplay = args.showdisplay ### INITIALIZE DISPLAY FLAG - JACOB HAGAN
 broker_ip = args.broker_ip ###ADDED BY COREY CLINE
 client_name = args.client_name ###ADDED BY COREY CLINE
 mqtt_topic = args.topic ###ADDED BY COREY CLINE
+publish_interval = int(args.publish_interval) ###ADDED BY COREY CLINE
+
+# Validate MQTT input arguments here - COREY CLINE
+if broker_ip == None:
+    if mqtt_topic != "test/occupancy":
+        raise Exception( "Must specify a broker_ip to publish to a topic. " + \
+                         "Use --broker-ip argument to connect to a broker." )
+    if client_name != "TX1":
+        raise Exception( "Must specify a broker_ip for a client_name. "+ \
+                         "Use --broker-ip argument to connect to a broker." )
+    if publish_interval != 10:
+        raise Exception( "Must specify a broker_ip to publish at a given " + \
+                         "interval. Use --broker-ip argument to connect " + \
+                         "to a broker." )
 
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
@@ -179,14 +195,12 @@ time.sleep(1)
 if use_VideoWriter:
     writer = cv2.VideoWriter( "output/output.avi", cv2.VideoWriter_fourcc( *"MJPG" ), 4, (imW,imH) ) ### ADDED HERE TO SAVE VIDEO AS FILE - COREY CLINE
 
-pub_timer = time.perf_counter() ### INITIALIZE PUBLISH TIMER - ADDED BY COREY CLINE
-
 # Initialize data tracker and MQTT Client - ADDED BY COREY CLINE
-tracker = DataTracker()
-#broker_ip = "192.168.0.34"
-#client_name = "TX1"
-TX1_client = MQTTClient( broker_ip, client_name )
-TX1_client.connect()
+if broker_ip:
+    pub_timer = time.perf_counter() ### INITIALIZE PUBLISH TIMER - ADDED BY COREY CLINE
+    tracker = DataTracker()
+    TX1_client = MQTTClient( broker_ip, client_name )
+    TX1_client.connect()
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
 while True:
@@ -264,20 +278,23 @@ while True:
     t2 = cv2.getTickCount()
     time1 = (t2-t1)/freq
     frame_rate_calc= 1/time1
-    time_passed = time.perf_counter() - pub_timer ### ADDED BY COREY CLINE
 
-    # Add data point to tracker - ADDED BY COREY CLINE
-    tracker.add_point( num_occupants )
+    # Check for a broker connection before publishing - COREY CLINE
+    if broker_ip:
+        time_passed = time.perf_counter() - pub_timer ### ADDED BY COREY CLINE
 
-    # Check mqtt publish timer - ADDED BY COREY CLINE
-    if ( time_passed ) > 10:
-        mode = tracker.get_mode()
-        tracker.clear_data()
-        TX1_client.client.loop_start()
-        TX1_client.publish( mqtt_topic, mode, qos = 2, retain = False )
-        TX1_client.client.loop_stop()
-        print( "PEOPLE: {}".format( mode ) )
-        pub_timer = time.perf_counter()
+        # Add data point to tracker - ADDED BY COREY CLINE
+        tracker.add_point( num_occupants )
+
+        # Check mqtt publish timer - ADDED BY COREY CLINE
+        if ( time_passed ) > publish_interval:
+            mode = tracker.get_mode()
+            tracker.clear_data()
+            TX1_client.client.loop_start()
+            TX1_client.publish( mqtt_topic, mode, qos = 2, retain = False )
+            TX1_client.client.loop_stop()
+            print( "PEOPLE: {}".format( mode ) )
+            pub_timer = time.perf_counter()
 
     # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
